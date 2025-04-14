@@ -1,0 +1,98 @@
+@startuml
+    class Producto {
+        -idProducto : int
+        -nombre : String
+        -descripcion : String
+        -precio : double
+        -stock : int
+    }
+    
+    class Cliente {
+        -idCliente : int
+        -nombre : String
+        -apellido : String
+        -telefono : String
+        -correo : String
+    }
+    
+    class DetalleVenta {
+        -producto : Producto
+        -cantidad : int
+        +calcularSubtotal() : double
+    }
+    
+    class Venta {
+        -idVenta : int
+        -fecha : Date
+        -cliente : Cliente
+        -detalles : List~DetalleVenta~
+        +calcularTotal() : double
+    }
+    
+    class Administrador {
+        -idAdmin : int
+        -nombre : String
+        -cargo : String
+        +agregarProducto(List~Producto~, Producto)
+        +eliminarProducto(List~Producto~, Producto)
+        +modificarProducto(Producto, String, double)
+        +registrarCliente(List~Cliente~, Cliente)
+    }
+    
+    class Pago {
+        -idPago : int
+        -venta : Venta
+        -monto : double
+        -fechaPago : Date
+        -metodoPago : String
+        -estado : EstadoPago
+        +procesarPago() : boolean
+        +generarComprobante() : Factura
+    }
+    
+    class Inventario {
+        -idInventario : int
+        -productos : Map~Producto, int~
+        +actualizarStock(Producto, int)
+        +verificarDisponibilidad(Producto, int) : boolean
+        +generarAlertaStockBajo(int umbral)
+        +registrarEntrada(Producto, int)
+        +registrarSalida(Producto, int)
+    }
+    
+    class Factura {
+        -idFactura : int
+        -venta : Venta
+        -pago : Pago
+        -fechaEmision : Date
+        -subtotal : double
+        -impuestos : double
+        -total : double
+        +calcularImpuestos() : double
+        +generarPDF() : File
+    }
+    
+    enum EstadoPago {
+        PENDIENTE
+        PROCESANDO
+        COMPLETADO
+        RECHAZADO
+        CANCELADO
+    }
+    
+    Venta --> Cliente
+    Venta --> "1..*" DetalleVenta
+    DetalleVenta --> Producto
+    Administrador --> Producto : gestiona
+    Administrador --> Cliente : gestiona
+    Administrador --> Venta : gestiona
+    Pago --> Venta : corresponde a
+    Pago --> EstadoPago
+    Inventario --> Producto : controla
+    Factura --> Venta : documenta
+    Factura --> Pago : referencia
+    Administrador --> Inventario : gestiona
+    Administrador --> Factura : genera
+    Administrador --> Pago : procesa
+
+@enduml
